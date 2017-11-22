@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 echo "installing VM"
-vagrant up
+vagrant up  --provision
 
