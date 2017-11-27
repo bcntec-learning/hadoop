@@ -1,6 +1,8 @@
 # Author Francisco Philip
 
 Vagrant.configure("2") do |config|
+    #curl -O http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-1710_01.VirtualBox.box
+    #vagrant box add centos/7 CentOS-7-x86_64-Vagrant-1710_01.VirtualBox.box
     config.vm.box = "centos/7"
     config.vm.provision :shell, :path=> 'setup.sh'
     config.vm.network :private_network, ip: "10.211.55.101"
@@ -10,6 +12,6 @@ Vagrant.configure("2") do |config|
     config.vm.network "forwarded_port", guest: 8088, host: 8088
     config.vm.network "forwarded_port", guest: 8042, host: 8042
     config.vm.network "forwarded_port", guest: 19888, host: 19888
-    config.vm.synced_folder "../data", "/data/", id: "data-project", :mount_options => []
+    config.vm.synced_folder "../hadoop-data", "/data/", id: "data-project", :mount_options => []
     config.vm.synced_folder "../workspace", "/home/hadoop/workspace/", id: "workspace-project", :mount_options => []
 end
