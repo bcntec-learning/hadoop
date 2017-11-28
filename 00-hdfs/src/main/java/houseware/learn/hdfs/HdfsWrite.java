@@ -1,3 +1,12 @@
+package houseware.learn.hdfs;
+
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
+
 import java.io.IOException;
 import java.net.URI;
 
@@ -23,7 +32,7 @@ public class HdfsWrite {
             out = fs.create(new Path(toUri));
             in = fs.open(new Path(fromUri));
             // we can copy bytes from input stream to output stream as shown below
-             IOUtils.copyBytes(in, out, 4096, false)
+            IOUtils.copyBytes(in, out, 4096, false);
             // Read from input stream and write to output stream until EOF.
             while ((bytesRead = in.read(buffer)) > 0) {
                 out.write(buffer, 0, bytesRead);

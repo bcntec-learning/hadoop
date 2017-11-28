@@ -1,17 +1,49 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
 # Author Francisco Philip
 
 Vagrant.configure("2") do |config|
     #curl -O http://cloud.centos.org/centos/7/vagrant/x86_64/images/CentOS-7-x86_64-Vagrant-1710_01.VirtualBox.box
     #vagrant box add centos/7 CentOS-7-x86_64-Vagrant-1710_01.VirtualBox.box
-    config.vm.box = "centos/7"
-    config.vm.provision :shell, :path=> 'setup.sh'
-    config.vm.network :private_network, ip: "10.211.55.101"
+    #config.vm.box = "centos/7"
+
+    config.vm.box = "ubuntu/trusty64"
+    config.vm.box_version = "20170313.0.7"
+
     config.vm.hostname = "hadoop"
+
+    config.vm.provider "virtualbox" do |vb|
+        vb.memory = "4096"
+        vb.name = "hadoop-ubuntu"
+    end
+
+    #config.vm.network :private_network, ip: "10.211.55.101"
+    if Vagrant.has_plugin?("vagrant-proxyconf")
+        config.proxy.no_proxy = "localhost,127.0.0.1"
+    end
+
     config.vm.network "forwarded_port", guest: 50070, host: 50070
     config.vm.network "forwarded_port", guest: 50075, host: 50075
     config.vm.network "forwarded_port", guest: 8088, host: 8088
     config.vm.network "forwarded_port", guest: 8042, host: 8042
     config.vm.network "forwarded_port", guest: 19888, host: 19888
-    config.vm.synced_folder "../hadoop-data", "/home/hadoop/data/", id: "data-project", :mount_options => []
-    config.vm.synced_folder "../workspace", "/home/hadoop/workspace/", id: "workspace-project", :mount_options => []
+
+    #config.vm.synced_folder "../hadoop-data", "/home/hadoop/data/", id: "data-project", :mount_options => []
+    #config.vm.synced_folder "../hadoop-workspace", "/home/hadoop/workspace/", id: "workspace-project", :mount_options => []
+
+    config.vm.provision :shell, inline: <<-SHELL
+
+        sed -ie '/^XKBLAYOUT=/s/".*"/"es"/' /etc/default/keyboard && udevadm trigger --subsystem-match=input --action=change
+        dpkg-reconfigure keyboard-configuration -f noninteractive
+        add-apt-repository ppa:openjdk-r/ppa -y
+        apt-get update
+        echo "\n----- Installing Java 8 ------\n"
+        apt-get -y install apache2 openjdk-8-jdk
+        update-alternatives --config java
+
+    SHELL
+
 end
+
+
