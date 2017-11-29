@@ -5,8 +5,10 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.security.UserGroupInformation;
 
 import java.io.*;
+import java.security.PrivilegedExceptionAction;
 
 
 /**
@@ -14,75 +16,78 @@ import java.io.*;
  */
 @SuppressWarnings("unused")
 public class FileSystemOperations {
-    public FileSystemOperations() {
 
+    static final String HADOOP_USER_NAME = "HADOOP_USER_NAME";
+    static final String HADOOP_USER = "hadoop";
+
+    public FileSystemOperations() {
+//        System.setProperty(HADOOP_USER_NAME,HADOOP_USER);
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
 
         if (args.length < 1) {
-            System.out.println("Usage: hdfsclient add/read/delete/mkdir"
+            System.out.println("Usage: add/read/delete/mkdir"
                     + " [<local_path> <hdfs_path>]");
             System.exit(1);
         }
+        UserGroupInformation ugi
+                = UserGroupInformation.createRemoteUser(HADOOP_USER);
 
-        FileSystemOperations client = new FileSystemOperations();
-        String hdfsPath = "hdfs://" + args[0] + ":" + args[1];
+        ugi.doAs((PrivilegedExceptionAction<Void>) () -> {
 
-        Configuration conf = new Configuration();
-        // Providing conf files
-        // conf.addResource(new Path(HDFSAPIDemo.class.getResource("/conf/core-site.xml").getFile()));
-        // conf.addResource(new Path(HDFSAPIDemo.class.getResource("/conf/hdfs-site.xml").getFile()));
-        // (or) using relative paths
-        //    conf.addResource(new Path(
-        //        "/u/hadoop-1.0.2/conf/core-site.xml"));
-        //    conf.addResource(new Path(
-        //        "/u/hadoop-1.0.2/conf/hdfs-site.xml"));
+            FileSystemOperations client = new FileSystemOperations();
+            String hdfsPath = "hdfs://localhost:8020";
 
-        //(or)
-        // alternatively provide namenode host and port info
-        conf.set("fs.default.name", hdfsPath);
+            Configuration conf = new Configuration();
 
-        if (args[0].equals("add")) {
-            if (args.length < 3) {
-                System.out.println("Usage: hdfsclient add <local_path> "
-                        + "<hdfs_path>");
+            conf.set(HADOOP_USER_NAME, "hadoop");
+            conf.set("fs.default.name", hdfsPath);
+
+            if (args[0].equals("add")) {
+                if (args.length < 3) {
+                    System.out.println("Usage: add <local_path> "
+                            + "<hdfs_path>");
+                    System.exit(1);
+                }
+
+                client.addFile(args[1], args[2], conf);
+
+            } else if (args[0].equals("read")) {
+                if (args.length < 2) {
+                    System.out.println("Usage: read <hdfs_path>");
+                    System.exit(1);
+                }
+
+                client.readFile(args[1], conf);
+
+            } else if (args[0].equals("delete")) {
+                if (args.length < 2) {
+                    System.out.println("Usage: delete <hdfs_path>");
+                    System.exit(1);
+                }
+
+                client.deleteFile(args[1], conf);
+
+            } else if (args[0].equals("mkdir")) {
+                if (args.length < 2) {
+                    System.out.println("Usage: mkdir <hdfs_path>");
+                    System.exit(1);
+                }
+
+                client.mkdir(args[1], conf);
+
+            } else {
+                System.out.println("Usage: add/read/delete/mkdir"
+                        + " [<local_path> <hdfs_path>]");
                 System.exit(1);
             }
 
-            client.addFile(args[1], args[2], conf);
+            System.out.println("Done!");
 
-        } else if (args[0].equals("read")) {
-            if (args.length < 2) {
-                System.out.println("Usage: hdfsclient read <hdfs_path>");
-                System.exit(1);
-            }
+            return null;
 
-            client.readFile(args[1], conf);
-
-        } else if (args[0].equals("delete")) {
-            if (args.length < 2) {
-                System.out.println("Usage: hdfsclient delete <hdfs_path>");
-                System.exit(1);
-            }
-
-            client.deleteFile(args[1], conf);
-
-        } else if (args[0].equals("mkdir")) {
-            if (args.length < 2) {
-                System.out.println("Usage: hdfsclient mkdir <hdfs_path>");
-                System.exit(1);
-            }
-
-            client.mkdir(args[1], conf);
-
-        } else {
-            System.out.println("Usage: hdfsclient add/read/delete/mkdir"
-                    + " [<local_path> <hdfs_path>]");
-            System.exit(1);
-        }
-
-        System.out.println("Done!");
+        });
     }
 
     /**
@@ -95,41 +100,44 @@ public class FileSystemOperations {
      */
     public void addFile(String source, String dest, Configuration conf) throws IOException {
 
-        FileSystem fileSystem = FileSystem.get(conf);
 
-        // Get the filename out of the file path
-        String filename = source.substring(source.lastIndexOf('/') + 1, source.length());
+        try (FileSystem fileSystem = FileSystem.get(conf)) {
 
-        // Create the destination path including the filename.
-        if (dest.charAt(dest.length() - 1) != '/') {
-            dest = dest + "/" + filename;
-        } else {
-            dest = dest + filename;
-        }
+            // Get the filename out of the file path
+            String filename = source.substring(source.lastIndexOf('/') + 1, source.length());
 
-        // System.out.println("Adding file to " + destination);
+            // Create the destination path including the filename.
+            if (dest.charAt(dest.length() - 1) != '/') {
+                dest = dest + "/" + filename;
+            } else {
+                dest = dest + filename;
+            }
 
-        // Check if the file already exists
-        Path path = new Path(dest);
-        if (fileSystem.exists(path)) {
-            System.out.println("File " + dest + " already exists");
-            return;
-        }
+            // System.out.println("Adding file to " + destination);
 
-        // Create a new file and write data to it.
-        FSDataOutputStream out = fileSystem.create(path);
-        InputStream in = new BufferedInputStream(new FileInputStream(new File(source)));
+            // Check if the file already exists
+            Path path = new Path(dest);
+            if (fileSystem.exists(path)) {
+                System.out.println("File " + dest + " already exists");
+                return;
+            }
 
-        byte[] b = new byte[1024];
-        int numBytes = 0;
-        while ((numBytes = in.read(b)) > 0) {
-            out.write(b, 0, numBytes);
+            try (FSDataOutputStream out = fileSystem.create(path)) {
+
+                try (InputStream in = new BufferedInputStream(new FileInputStream(new File(source)))) {
+
+                    byte[] b = new byte[1024];
+                    int numBytes = 0;
+                    while ((numBytes = in.read(b)) > 0) {
+                        out.write(b, 0, numBytes);
+                    }
+                }
+            }
         }
 
         // Close all the file descriptors
-        in.close();
-        out.close();
-        fileSystem.close();
+
+
     }
 
     /**
@@ -148,23 +156,22 @@ public class FileSystemOperations {
             return;
         }
 
-        FSDataInputStream in = fileSystem.open(path);
+        try (FSDataInputStream in = fileSystem.open(path)) {
 
-        String filename = file.substring(file.lastIndexOf('/') + 1,
-                file.length());
+            String filename = file.substring(file.lastIndexOf('/') + 1,
+                    file.length());
 
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(
-                new File(filename)));
+            try (OutputStream out = new BufferedOutputStream(new FileOutputStream(
+                    new File(filename)))) {
 
-        byte[] b = new byte[1024];
-        int numBytes = 0;
-        while ((numBytes = in.read(b)) > 0) {
-            out.write(b, 0, numBytes);
+                byte[] b = new byte[1024];
+                int numBytes = 0;
+                while ((numBytes = in.read(b)) > 0) {
+                    out.write(b, 0, numBytes);
+                }
+            }
         }
 
-        in.close();
-        out.close();
-        fileSystem.close();
     }
 
     /**

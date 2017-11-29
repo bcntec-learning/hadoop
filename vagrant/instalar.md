@@ -17,6 +17,11 @@ Este proyecto Vagrant es base para las pruebas de instalación y ejercicios del 
 Mediante  ```vagrant ssh-config  > vagrant-ssh``` podemos exportar la configuracion para acceso remoto via ```ssh```.
 Ejemplo  ```ssh -F vagrant-ssh default```.
 
+
+### Mount
+sudo mount -t vboxsf hadoop $HOME/share
+
+
 #### Vagrant
 [Comandos.](https://www.vagrantup.com/docs/cli/)
 
