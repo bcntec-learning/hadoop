@@ -1,4 +1,4 @@
-package houseware.learn.wordcount;
+package houseware.learn.hadoop.mapred.wordcount;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
@@ -14,7 +14,8 @@ import java.io.IOException;
 public class WorldCounterReduce extends Reducer<Text, LongWritable, Text, LongWritable> {
 
 
-    protected void reduce(Text key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
+    @Override
+    protected void reduce(Text key, Iterable<LongWritable> values, Reducer<Text, LongWritable, Text, LongWritable>.Context context) throws IOException, InterruptedException {
 
         long wordOccurrences = 0;
 

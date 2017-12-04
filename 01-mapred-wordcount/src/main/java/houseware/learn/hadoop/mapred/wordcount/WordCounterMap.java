@@ -1,4 +1,4 @@
-package houseware.learn.wordcount;
+package houseware.learn.hadoop.mapred.wordcount;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +18,8 @@ public class WordCounterMap extends Mapper<LongWritable, Text, Text, LongWritabl
         discardWords.add("");
     }
 
-    protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+    @Override
+    protected void map(LongWritable key, Text value, Mapper<LongWritable, Text, Text, LongWritable>.Context context) throws IOException, InterruptedException {
 
         String line = value.toString().toUpperCase().replaceAll("[^a-zA-Z 0-9]+","").replaceAll("\\s+", " ");
 
@@ -30,7 +31,7 @@ public class WordCounterMap extends Mapper<LongWritable, Text, Text, LongWritabl
 
     }
 
-    private List<String>  extractWordsFromLine(String line) {
+    protected List<String>  extractWordsFromLine(String line) {
 
         if (line != null && !"".equals(line)) {
             return getWords(line);

@@ -1,4 +1,4 @@
-package houseware.learn.wordcount;
+package houseware.learn.hadoop.mapred.wordcount;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -36,8 +36,7 @@ public class WordCounter2 {
         private BufferedReader fis;
 
         @Override
-        public void setup(Context context) throws IOException,
-                InterruptedException {
+        public void setup(Context context) throws IOException, InterruptedException {
             conf = context.getConfiguration();
             caseSensitive = conf.getBoolean("wordcount.case.sensitive", true);
             if (conf.getBoolean("wordcount.skip.patterns", false)) {
@@ -64,8 +63,7 @@ public class WordCounter2 {
         }
 
         @Override
-        public void map(Object key, Text value, Context context
-        ) throws IOException, InterruptedException {
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String line = (caseSensitive) ?
                     value.toString() : value.toString().toLowerCase();
             for (String pattern : patternsToSkip) {
@@ -86,9 +84,7 @@ public class WordCounter2 {
             extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
 
-        public void reduce(Text key, Iterable<IntWritable> values,
-                           Context context
-        ) throws IOException, InterruptedException {
+        public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             int sum = 0;
             for (IntWritable val : values) {
                 sum += val.get();

@@ -14,7 +14,7 @@
 ```hadoop fs -copyFromLocal ./data/El_Senor_de_los_Anillos.txt /ejemplos/01-mapred-wordcount/input```
 ```hadoop fs -ls /ejemplos/01-mapred-wordcount/input```
 
-```hadoop jar ./target/01-mapred-wordcount-1.0-SNAPSHOT.jar houseware.learn.wordcount.WordCounter2  /ejemplos/01-mapred-wordcount/input /ejemplos/01-mapred-wordcount/output ​```
+```hadoop jar ./target/01-mapred-wordcount-1.0-SNAPSHOT.jar houseware.learn.hadoop.mapred.wordcount.WordCounter2  /ejemplos/01-mapred-wordcount/input /ejemplos/01-mapred-wordcount/output ​```
 
 
 ##### Visulizar ficheros

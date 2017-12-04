@@ -26,6 +26,8 @@
         <module>00-hdfs</module>
         <module>01-mapred-wordcount</module>
         <module>01-mapred-sales</module>
+        <module>02-partitioner-wordcount</module>
+        <module>03-counter-samples</module>
     </modules>
 
     <build>
@@ -98,6 +100,15 @@
     <dependencyManagement>
 
         <dependencies>
+
+
+            <dependency>
+                <groupId>bcntec.learning.hadoop</groupId>
+                <artifactId>01-mapred-wordcount</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- hadoop -->
 
             <dependency>
                 <groupId>org.apache.hadoop</groupId>

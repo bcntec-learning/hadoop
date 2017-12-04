@@ -1,4 +1,4 @@
-package houseware.learn.sales;
+package houseware.learn.hadoop.mapred.sales;
 
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;

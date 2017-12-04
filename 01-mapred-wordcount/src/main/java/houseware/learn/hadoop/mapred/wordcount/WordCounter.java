@@ -1,27 +1,30 @@
-package houseware.learn.sales;
+package houseware.learn.hadoop.mapred.wordcount;
+
+import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.IOException;
-import java.util.Arrays;
-
 /**
  * @author fphilip@houseware.es
  */
+
 @SuppressWarnings("unused")
-public class Sales {
+public class WordCounter {
+
 
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
         if (args.length != 2) {
-            System.err.println("Use: SalesCountry <SOURCE_PATH> <TARGET_PATH>");
+            System.err.println("Use: WordCounter <SOURCE_PATH> <TARGET_PATH>");
             System.exit(1);
         }
 
@@ -34,7 +37,18 @@ public class Sales {
         boolean success = false;
 
         try {
-            success = counterWords(source, target);
+            Configuration conf = new Configuration();
+            Job job = Job.getInstance(conf, "My WordCounter Program");
+            job.setJarByClass(WordCounter.class);
+
+            FileInputFormat.addInputPath(job, new Path(source));
+            FileOutputFormat.setOutputPath(job, new Path(target));
+
+            job.setMapperClass(WordCounterMap.class);
+            job.setReducerClass(WorldCounterReduce.class);
+            job.setOutputKeyClass(Text.class);
+            job.setOutputValueClass(LongWritable.class);
+            success = job.waitForCompletion(true);
         } catch (Exception e) {
             System.err.println("Error counting words.");
             e.printStackTrace(System.err);
@@ -47,23 +61,4 @@ public class Sales {
         System.exit(success ? 0 : 1);
 
     }
-
-    private static boolean counterWords(String source, String target)
-            throws IOException, ClassNotFoundException, InterruptedException {
-
-        Configuration conf= new Configuration();
-        Job job = Job.getInstance(conf,"My Sales Program");
-        job.setJarByClass(Sales.class);
-
-        FileInputFormat.addInputPath(job, new Path(source));
-        FileOutputFormat.setOutputPath(job, new Path(target));
-
-        job.setMapperClass(SalesMap.class);
-        job.setReducerClass(SalesReduce.class);
-        job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(LongWritable.class);
-
-        return job.waitForCompletion(true);
-    }
-
 }
