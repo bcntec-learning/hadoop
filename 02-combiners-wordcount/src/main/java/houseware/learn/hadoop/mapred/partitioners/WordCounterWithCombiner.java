@@ -1,7 +1,4 @@
-package houseware.learn.hadoop.mapred.partitioner1;
-
-import java.io.IOException;
-import java.util.Arrays;
+package houseware.learn.hadoop.mapred.partitioners;
 
 import houseware.learn.hadoop.mapred.wordcount.WordCounter;
 import houseware.learn.hadoop.mapred.wordcount.WordCounterMap;
@@ -10,23 +7,25 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+
+import java.util.Arrays;
 
 /**
  * @author fphilip@houseware.es
  */
 
 @SuppressWarnings("unused")
-public class WordCounterWithPartitioner {
+public class WordCounterWithCombiner {
 
 
     public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
 
         if (args.length != 2) {
-            System.err.println("Use: WordCounterWithPartitioner <SOURCE_PATH> <TARGET_PATH>");
+            System.err.println("Use: WordCounterWithCombiner <SOURCE_PATH> <TARGET_PATH>");
             System.exit(1);
         }
 
@@ -50,7 +49,7 @@ public class WordCounterWithPartitioner {
             job.setReducerClass(WorldCounterReduce.class);
             job.setOutputKeyClass(Text.class);
             job.setOutputValueClass(LongWritable.class);
-            job.setPartitionerClass(WorldCounterPartitioner.class);
+            job.setCombinerClass(WorldCounterCombiner.class);
             job.setNumReduceTasks(27);
 
             success = job.waitForCompletion(true);
@@ -59,6 +58,9 @@ public class WordCounterWithPartitioner {
             e.printStackTrace(System.err);
         }
 
+        float executionTime = (System.currentTimeMillis() - startTime) / 1000;
+        System.out.println("Execution time:" + executionTime + " seconds.");
+        System.out.println("Finish word counter program. Success: " + success);
 
         System.exit(success ? 0 : 1);
 
