@@ -7,7 +7,7 @@
 
     <parent>
 
-        <groupId>bcntec.learning.hadoop</groupId>
+        <groupId>houseware.learning.hadoop</groupId>
         <artifactId>hadoop</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../</relativePath>
@@ -19,7 +19,7 @@
     <dependencies>
         
         <dependency>
-            <groupId>bcntec.learning.hadoop</groupId>
+            <groupId>houseware.learning.hadoop</groupId>
             <artifactId>01-mapred-wordcount</artifactId>
             <version>${project.version}</version>
         </dependency>
