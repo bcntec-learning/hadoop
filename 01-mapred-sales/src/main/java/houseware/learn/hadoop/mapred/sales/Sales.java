@@ -2,7 +2,7 @@ package houseware.learn.hadoop.mapred.sales;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -51,8 +51,8 @@ public class Sales {
     private static boolean counterWords(String source, String target)
             throws IOException, ClassNotFoundException, InterruptedException {
 
-        Configuration conf= new Configuration();
-        Job job = Job.getInstance(conf,"My Sales Program");
+        Configuration conf = new Configuration();
+        Job job = Job.getInstance(conf, "My Sales Program");
         job.setJarByClass(Sales.class);
 
         FileInputFormat.addInputPath(job, new Path(source));
@@ -61,7 +61,7 @@ public class Sales {
         job.setMapperClass(SalesMap.class);
         job.setReducerClass(SalesReduce.class);
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(LongWritable.class);
+        job.setOutputValueClass(IntWritable.class);
 
         return job.waitForCompletion(true);
     }

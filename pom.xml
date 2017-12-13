@@ -28,6 +28,7 @@
         <module>01-mapred-sales</module>
         <module>02-partitioner-wordcount</module>
         <module>03-counters-samples</module>
+        <module>04-compression</module>
     </modules>
 
     <build>
