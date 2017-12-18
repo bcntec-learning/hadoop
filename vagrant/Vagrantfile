@@ -40,7 +40,8 @@ Vagrant.configure("2") do |config|
         apt-get update
         echo "\n----- Installing Java 8 ------\n"
         apt-get -y install apache2 openjdk-8-jdk
-        update-alternatives --config java
+        #update-alternatives --config java
+        mkdir /hadoop
 
     SHELL
 
