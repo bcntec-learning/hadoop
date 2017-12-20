@@ -1,18 +1,18 @@
 package houseware.learn.hadoop.mapred.multiples;
 
+import lombok.NoArgsConstructor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.SequenceFileOutputFormat;
-import org.apache.hadoop.mapred.TextOutputFormat;
-import org.apache.hadoop.mapred.lib.MultipleOutputs;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.MultipleOutputs;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -58,8 +58,7 @@ public class WordCounterWithMultiples {
             job.setOutputValueClass(LongWritable.class);
 
 
-           // MultipleOutputs.addNamedOutput(, "text", TextOutputFormat.class, Text.class, IntWritable.class);
-           //         MultipleOutputs.addNamedOutput(job, "seq", SequenceFileOutputFormat.class, Text.class, IntWritable.class);
+            MultipleOutputs.addNamedOutput(job, "STARTA", TextOutputFormat.class, Text.class, IntWritable.class);
 
 
             success = job.waitForCompletion(true);
@@ -73,7 +72,8 @@ public class WordCounterWithMultiples {
 
     }
 
-    public class WordCounterMap extends Mapper<LongWritable, Text, Text, LongWritable> {
+    @NoArgsConstructor
+    public static class WordCounterMap extends Mapper<LongWritable, Text, Text, LongWritable> {
 
 
         @Override
@@ -102,8 +102,9 @@ public class WordCounterWithMultiples {
 
     }
 
-    public class WordCounterReduce extends Reducer<Text, LongWritable, Text, LongWritable> {
-
+    @NoArgsConstructor
+    public static class WordCounterReduce extends Reducer<Text, LongWritable, Text, LongWritable> {
+        MultipleOutputs<Text, LongWritable> mos;
 
         @Override
         protected void reduce(Text key, Iterable<LongWritable> values, Reducer<Text, LongWritable, Text, LongWritable>.Context context) throws IOException, InterruptedException {
@@ -116,6 +117,21 @@ public class WordCounterWithMultiples {
 
             context.write(key, new LongWritable(wordOccurrences));
 
+            if (key.toString().startsWith("A")) {
+                mos.write("STARTA", key, new LongWritable(wordOccurrences));
+            }
+
+        }
+
+        @Override
+        protected void setup(Context context) throws IOException, InterruptedException {
+            mos = new MultipleOutputs<>(context);
+
+        }
+
+        @Override
+        protected void cleanup(Context context) throws IOException, InterruptedException {
+            mos.close();
         }
     }
 }

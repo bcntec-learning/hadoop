@@ -1,5 +1,6 @@
 package houseware.learn.hadoop.mapred.joins.reduceside;
 
+import lombok.NoArgsConstructor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -17,7 +18,7 @@ public class ReduceSideJoinSample {
 
     public static void main(String[] args) throws Exception {
         Configuration conf = new Configuration();
-        Job job = new Job(conf, "Reduce-side join");
+        Job job = Job.getInstance(conf, "Reduce Side Join");
         job.setJarByClass(ReduceSideJoinSample.class);
         job.setReducerClass(ReduceJoinReducer.class);
         job.setOutputKeyClass(Text.class);
@@ -30,22 +31,24 @@ public class ReduceSideJoinSample {
 
 
         FileOutputFormat.setOutputPath(job, outputPath);
-        outputPath.getFileSystem(conf).delete(outputPath);
+        outputPath.getFileSystem(conf).delete(outputPath, true);
         System.exit(job.waitForCompletion(true) ? 0 : 1);
     }
 
-    public static class CustsMapper extends   Mapper<Object, Text, Text, Text> {
-        public void map(Object key, Text value, Context context)
-                throws IOException, InterruptedException {
+    @NoArgsConstructor
+    public static class CustsMapper extends Mapper<Object, Text, Text, Text> {
+        @Override
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String record = value.toString();
             String[] parts = record.split(",");
             context.write(new Text(parts[0]), new Text("cust\t" + parts[1]));
         }
     }
 
-    public static class TxnsMapper extends  Mapper<Object, Text, Text, Text> {
-        public void map(Object key, Text value, Context context)
-                throws IOException, InterruptedException {
+    @NoArgsConstructor
+    public static class TxnsMapper extends Mapper<Object, Text, Text, Text> {
+        @Override
+        public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             String record = value.toString();
             String[] parts = record.split(",");
             context.write(new Text(parts[2]), new Text("tnxn\t" + parts[3]));

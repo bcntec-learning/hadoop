@@ -22,7 +22,7 @@ public class UserActivityMapper extends Mapper<LongWritable, Text, IntWritable, 
             throws IOException, InterruptedException {
 
         String[] columns = value.toString().split("\t");
-        if (columns != null && columns.length > 2) {
+        if (columns.length > 2) {
             UserActivityVO userActivityVO = new UserActivityVO();
             userActivityVO.setUserId(Integer.parseInt(columns[1]));
             userActivityVO.setComments(columns[2]);
@@ -37,10 +37,10 @@ public class UserActivityMapper extends Mapper<LongWritable, Text, IntWritable, 
     protected void setup(Mapper<LongWritable, Text, IntWritable, UserActivityVO>.Context context)
             throws IOException, InterruptedException {
         // loading user map in context
-        loadUserInMemory(context);
+        loadUserInMemory();
     }
 
-    private void loadUserInMemory(Mapper<LongWritable, Text, IntWritable, UserActivityVO>.Context context) {
+    private void loadUserInMemory() {
         // user.log is in distributed cache
         try (BufferedReader br = new BufferedReader(new FileReader("user.log"))) {
             String line;

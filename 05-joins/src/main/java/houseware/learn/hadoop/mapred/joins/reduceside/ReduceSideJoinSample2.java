@@ -22,7 +22,7 @@ public class ReduceSideJoinSample2 {
             System.err.println("Usage: join <input-table1><input-table2><jointype:inner|leftouter|rightouter|fullouter><out>");
             System.exit(2);
         }
-        Job job = Job.getInstance(conf, "Reduce Side Join");
+        Job job = Job.getInstance(conf, "Reduce Side Join2");
         job.setJarByClass(ReduceSideJoinSample2.class);
 
         job.setReducerClass(DeptJoinReducer.class);

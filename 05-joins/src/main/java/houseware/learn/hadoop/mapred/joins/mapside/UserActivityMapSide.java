@@ -1,5 +1,6 @@
 package houseware.learn.hadoop.mapred.joins.mapside;
 
+import lombok.NoArgsConstructor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -58,7 +59,8 @@ public class UserActivityMapSide {
         System.exit(success ? 0 : 1);
 
     }
-    public class UserActivityReducer extends Reducer<IntWritable, UserActivityVO, UserActivityVO, NullWritable> {
+    @NoArgsConstructor
+    public static class UserActivityReducer extends Reducer<IntWritable, UserActivityVO, UserActivityVO, NullWritable> {
 
         NullWritable value = NullWritable.get();
 
